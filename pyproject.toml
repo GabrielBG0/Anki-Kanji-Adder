@@ -1,0 +1,11 @@
+[project]
+name = "anki-kanji-adder"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "rapidfuzz>=3.14.3",
+    "requests>=2.32.5",
+    "rich>=14.3.3",
+]
