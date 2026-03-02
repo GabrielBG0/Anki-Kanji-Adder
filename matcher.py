@@ -1,21 +1,25 @@
-from rapidfuzz import fuzz
+# matcher.py
+
+from typing import Any, Dict, List, Tuple
+
+from similarity import gloss_score
 
 
-def normalize(text):
-    return text.lower().replace("to ", "").strip()
+def rank_candidates(
+    candidates: List[Dict[str, Any]],
+    english: str,
+) -> List[Tuple[float, Dict[str, Any]]]:
+    """
+    Returns:
+        [(score, candidate_dict), ...]
+    """
 
-
-def rank_candidates(candidates, english):
-    english = normalize(english)
-    scored = []
+    scored: List[Tuple[float, Dict[str, Any]]] = []
 
     for c in candidates:
-        best = 0
-        for gloss in c["glosses"]:
-            score = fuzz.partial_ratio(english, gloss)
-            best = max(best, score)
+        score = gloss_score(english, c["glosses"])
+        scored.append((score, c))
 
-        scored.append((best, c))
+    scored.sort(key=lambda x: x[0], reverse=True)
 
-    scored.sort(reverse=True, key=lambda x: x[0])
     return scored
