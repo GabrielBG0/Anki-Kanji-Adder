@@ -14,7 +14,7 @@ from rollback import generate_session_id, get_sessions, log_change, rollback_ses
 console = Console()
 jmdict = JMDict("JMdict_e.xml")
 
-DRY_RUN = True  # Change to True to test without updating
+DRY_RUN = False  # Change to True to test without updating
 PROGRESS_FILE = "progress.json"
 
 from rich.table import Table
