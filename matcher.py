@@ -1,7 +1,9 @@
 from rapidfuzz import fuzz
 
+
 def normalize(text):
     return text.lower().replace("to ", "").strip()
+
 
 def rank_candidates(candidates, english):
     english = normalize(english)
