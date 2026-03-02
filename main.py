@@ -68,7 +68,7 @@ def format_front(kanji, reading):
     return f"{kanji}（{reading}）"
 
 
-def process_note(note, session_id):
+def process_note(note, session_id, current_index, total_notes):
     note_id = note["noteId"]
     front = note["fields"]["Front"]["value"].strip()
     back = note["fields"]["Back"]["value"].strip()
@@ -88,7 +88,11 @@ def process_note(note, session_id):
 
     ranked = rank_candidates(candidates, back)
 
-    console.print(f"\n[bold]{front}[/bold] — {back}")
+    percentage = (current_index / total_notes) * 100
+    console.print(
+        f"\n[cyan][{current_index}/{total_notes} | {percentage:.1f}%][/cyan] "
+        f"[bold]{front}[/bold] — {back}"
+    )
 
     # If only one viable kanji candidate
     valid = [c for score, c in ranked if c["kanji"]]
@@ -150,7 +154,7 @@ def main():
 
     try:
         for i in range(start_index, len(notes)):
-            process_note(notes[i], session_id)
+            process_note(notes[i], session_id, i + 1, len(notes))
             save_progress(i + 1, session_id, deck_name)
 
     except KeyboardInterrupt:
