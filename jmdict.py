@@ -25,32 +25,67 @@ class JMDict:
     def lookup(self, reading):
         """
         Lookup reading directly.
-        Also supports suru-verb expansion.
+        Supports light-verb and auxiliary constructions.
         """
 
-        # Direct match first
+        # 1. Direct match
         if reading in self.index:
             return self.index[reading]
 
         results = []
 
-        # Handle suru-verbs
-        if reading.endswith("する"):
-            base = reading[:-2]  # remove する
+        # Expand using known patterns
+        expansions = self._expand_reading(reading)
 
-            if base in self.index:
-                base_entries = self.index[base]
+        for base_reading, suffix_builder in expansions:
+            if base_reading in self.index:
+                base_entries = self.index[base_reading]
 
                 for entry in base_entries:
-                    # Reconstruct suru-kanji
+                    kanji_list = entry["kanji"]
+
+                    if not kanji_list:
+                        continue
+
                     new_entry = {
-                        "kanji": (
-                            [k + "する" for k in entry["kanji"]]
-                            if entry["kanji"]
-                            else []
-                        ),
+                        "kanji": [suffix_builder(k) for k in kanji_list],
                         "glosses": entry["glosses"],
                     }
+
                     results.append(new_entry)
 
         return results
+
+    def _expand_reading(self, reading):
+        """
+        Returns list of (base_reading, kanji_builder_function)
+        """
+
+        expansions = []
+
+        # する verbs
+        if reading.endswith("する"):
+            base = reading[:-2]
+            expansions.append((base, lambda k: k + "する"))
+
+        # がある
+        if reading.endswith("がある"):
+            base = reading[:-3]
+            expansions.append((base, lambda k: k + "がある"))
+
+        # がない
+        if reading.endswith("がない"):
+            base = reading[:-3]
+            expansions.append((base, lambda k: k + "がない"))
+
+        # をする
+        if reading.endswith("をする"):
+            base = reading[:-3]
+            expansions.append((base, lambda k: k + "をする"))
+
+        # になる
+        if reading.endswith("になる"):
+            base = reading[:-3]
+            expansions.append((base, lambda k: k + "になる"))
+
+        return expansions
